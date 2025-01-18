@@ -2039,7 +2039,7 @@ ImNodesIO::MultipleSelectModifier::MultipleSelectModifier() : Modifier(NULL) {}
 
 ImNodesIO::ImNodesIO()
     : EmulateThreeButtonMouse(), LinkDetachWithModifierClick(),
-      AltMouseButton(ImGuiMouseButton_Middle), AutoPanningSpeed(1000.0f)
+      AltMouseButton(ImGuiMouseButton_Right), AutoPanningSpeed(1000.0f)
 {
 }
 
@@ -2283,11 +2283,11 @@ void BeginNodeEditor()
     GImNodes->AltMouseClicked =
         (GImNodes->Io.EmulateThreeButtonMouse.Modifier != NULL &&
          *GImNodes->Io.EmulateThreeButtonMouse.Modifier && GImNodes->LeftMouseClicked) ||
-        ImGui::IsMouseClicked(GImNodes->Io.AltMouseButton);
+        (ImGui::IsMouseClicked(GImNodes->Io.AltMouseButton) && ImGui::IsKeyDown(ImGuiKey_Space));
     GImNodes->AltMouseDragging =
         (GImNodes->Io.EmulateThreeButtonMouse.Modifier != NULL && GImNodes->LeftMouseDragging &&
          (*GImNodes->Io.EmulateThreeButtonMouse.Modifier)) ||
-        ImGui::IsMouseDragging(GImNodes->Io.AltMouseButton, 0.0f);
+        (ImGui::IsMouseDragging(GImNodes->Io.AltMouseButton, 0.0f) && ImGui::IsKeyDown(ImGuiKey_Space));
     GImNodes->AltMouseScrollDelta = ImGui::GetIO().MouseWheel;
     GImNodes->MultipleSelectModifier =
         (GImNodes->Io.MultipleSelectModifier.Modifier != NULL
