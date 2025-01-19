@@ -31,6 +31,23 @@ ImNodesContext* GImNodes = NULL;
 
 namespace IMNODES_NAMESPACE
 {
+
+
+
+ImVec2 Normalize(ImVec2 v) {
+    float l = ImInvLength(v, 1.f);
+    v *= l;
+    return v;
+}
+
+ImVec2 ComplexMul(ImVec2 a, ImVec2 b) {
+    return {a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x};
+}
+
+ImVec2 Rotate(ImVec2 v, float angle) {
+    return ImRotate(v, ImCos(angle), ImSin(angle));
+}
+
 namespace
 {
 // [SECTION] bezier curve helpers
@@ -1625,6 +1642,45 @@ void DrawLink(ImNodesEditorContext& editor, const int link_idx)
         link_color,
         GImNodes->Style.LinkThickness,
         cubic_bezier.NumSegments);
+
+    ImVec2 midp = EvalCubicBezier(
+        0.5f,
+        cubic_bezier.P0,
+        cubic_bezier.P1,
+        cubic_bezier.P2,
+        cubic_bezier.P3
+    );
+
+    ImVec2 prev_cursor_pos = ImGui::GetCursorPos();
+    ImGui::SetWindowFontScale(GImNodes->Style.LinkLabelTextScale);
+    ImVec2 text_offset = -ImGui::CalcTextSize(link.Label);
+    text_offset.x *= 0.5f;
+    ImGui::SetCursorPos(midp + text_offset);
+    ImGui::TextUnformatted(link.Label);
+    ImGui::SetWindowFontScale(1.f);
+    ImGui::SetCursorPos(prev_cursor_pos);
+
+    ImVec2 arrow_dir = end_pin.Pos -  EvalCubicBezier(
+        0.9f,
+        cubic_bezier.P0,
+        cubic_bezier.P1,
+        cubic_bezier.P2,
+        cubic_bezier.P3
+    );
+    arrow_dir = -Normalize(arrow_dir) * 10.f;
+
+    GImNodes->CanvasDrawList->AddLine(
+        end_pin.Pos,
+        end_pin.Pos + Rotate(arrow_dir, IM_PI * 0.3f),
+        link_color,
+        GImNodes->Style.LinkThickness / editor.ZoomScale
+    );
+    GImNodes->CanvasDrawList->AddLine(
+        end_pin.Pos,
+        end_pin.Pos + Rotate(arrow_dir, -IM_PI * 0.3f),
+        link_color,
+        GImNodes->Style.LinkThickness / editor.ZoomScale
+    );
 }
 
 void BeginPinAttribute(
@@ -1992,7 +2048,7 @@ ImNodesStyle::ImNodesStyle()
       LinkThickness(3.f), LinkLineSegmentsPerLength(0.1f), LinkHoverDistance(10.f),
       PinCircleRadius(4.f), PinQuadSideLength(7.f), PinTriangleSideLength(9.5),
       PinLineThickness(1.f), PinHoverRadius(10.f), PinOffset(0.f), MiniMapPadding(8.0f, 8.0f),
-      MiniMapOffset(4.0f, 4.0f), Flags(ImNodesStyleFlags_NodeOutline | ImNodesStyleFlags_GridLines),
+      MiniMapOffset(4.0f, 4.0f), LinkLabelTextScale(1.f), Flags(ImNodesStyleFlags_NodeOutline | ImNodesStyleFlags_GridLines),
       Colors()
 {
 }
@@ -2595,7 +2651,7 @@ void PopAttributeFlag()
     GImNodes->CurrentAttributeFlags = GImNodes->AttributeFlagStack.back();
 }
 
-void Link(const int id, const int start_attr_id, const int end_attr_id)
+void Link(const int id, const int start_attr_id, const int end_attr_id, const char* label)
 {
     IM_ASSERT(GImNodes->CurrentScope == ImNodesScope_Editor);
 
@@ -2607,6 +2663,7 @@ void Link(const int id, const int start_attr_id, const int end_attr_id)
     link.ColorStyle.Base = GImNodes->Style.Colors[ImNodesCol_Link];
     link.ColorStyle.Hovered = GImNodes->Style.Colors[ImNodesCol_LinkHovered];
     link.ColorStyle.Selected = GImNodes->Style.Colors[ImNodesCol_LinkSelected];
+    link.Label = label;
 
     // Check if this link was created by the current link event
     if ((editor.ClickInteraction.Type == ImNodesClickInteractionType_LinkCreation &&
@@ -2673,6 +2730,8 @@ static const ImNodesStyleVarInfo GStyleVarInfo[] = {
     {ImGuiDataType_Float, 2, (ImU32)offsetof(ImNodesStyle, MiniMapPadding)},
     // ImNodesStyleVar_MiniMapOffset
     {ImGuiDataType_Float, 2, (ImU32)offsetof(ImNodesStyle, MiniMapOffset)},
+    // ImNodesStyleVar_LinkLabelTextScale
+    {ImGuiDataType_Float, 1, (ImU32)offsetof(ImNodesStyle, LinkLabelTextScale)},
 };
 
 static const ImNodesStyleVarInfo* GetStyleVarInfo(ImNodesStyleVar idx)

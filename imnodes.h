@@ -69,6 +69,7 @@ enum ImNodesStyleVar_
     ImNodesStyleVar_PinOffset,
     ImNodesStyleVar_MiniMapPadding,
     ImNodesStyleVar_MiniMapOffset,
+    ImNodesStyleVar_LinkLabelTextScale,
     ImNodesStyleVar_COUNT
 };
 
@@ -199,6 +200,9 @@ struct ImNodesStyle
     // Mini-map offset from the screen side.
     ImVec2 MiniMapOffset;
 
+    // Scale of a text label for link
+    float LinkLabelTextScale;
+
     // By default, ImNodesStyleFlags_NodeOutline and ImNodesStyleFlags_Gridlines are enabled.
     ImNodesStyleFlags Flags;
     // Set these mid-frame using Push/PopColorStyle. You can index this color array with with a
@@ -325,7 +329,7 @@ void PopAttributeFlag();
 // Render a link between attributes.
 // The attributes ids used here must match the ids used in Begin(Input|Output)Attribute function
 // calls. The order of start_attr and end_attr doesn't make a difference for rendering the link.
-void Link(int id, int start_attribute_id, int end_attribute_id);
+void Link(int id, int start_attribute_id, int end_attribute_id, const char* label = "");
 
 // Enable or disable the ability to click and drag a specific node.
 void SetNodeDraggable(int node_id, const bool draggable);
