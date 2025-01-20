@@ -1655,6 +1655,7 @@ void DrawLink(ImNodesEditorContext& editor, const int link_idx)
     ImGui::SetWindowFontScale(GImNodes->Style.LinkLabelTextScale);
     ImVec2 text_offset = -ImGui::CalcTextSize(link.Label);
     text_offset.x *= 0.5f;
+    text_offset.y -= 22.f;
     ImGui::SetCursorPos(midp + text_offset);
     ImGui::TextUnformatted(link.Label);
     ImGui::SetWindowFontScale(1.f);
