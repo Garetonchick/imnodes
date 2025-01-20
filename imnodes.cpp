@@ -1673,13 +1673,13 @@ void DrawLink(ImNodesEditorContext& editor, const int link_idx)
         end_pin.Pos,
         end_pin.Pos + Rotate(arrow_dir, IM_PI * 0.3f),
         link_color,
-        GImNodes->Style.LinkThickness / editor.ZoomScale
+        GImNodes->Style.LinkThickness// / editor.ZoomScale
     );
     GImNodes->CanvasDrawList->AddLine(
         end_pin.Pos,
         end_pin.Pos + Rotate(arrow_dir, -IM_PI * 0.3f),
         link_color,
-        GImNodes->Style.LinkThickness / editor.ZoomScale
+        GImNodes->Style.LinkThickness// / editor.ZoomScale
     );
 }
 
